@@ -1,39 +1,25 @@
-# 营造法式数据处理工具
+# 古文翻译处理工具
 
-这个项目包含一系列Python脚本，用于处理《营造法式》相关的Excel数据文件。
+一个简单的基于浏览器的工具，用于处理Markdown文件并将其转换为TXT文件，
 
-## 功能
+## 主要功能
 
-- `process_excel.py`: 从Excel文件中提取第一列数据，并按照特定格式生成markdown文件
-- `export_to_csv.py`: 将Excel文件中的每个工作表导出为单独的CSV文件
-- `check_excel.py`: 检查Excel文件的结构和内容
+- **Markdown转TXT**: 将Markdown文件转换为纯文本格式
+- **按行翻译**: 逐行翻译古文为现代文
+- **格式化输出**: 输出格式为"古文：xxx" 和 "现代文：xxx"的对照格式
+- **独立运行**: 无需服务器，直接在浏览器中运行
 
 ## 使用方法
 
-### 提取数据到Markdown
+1. 直接在浏览器中打开`simple.html`文件
+2. 在"转txt"标签页选择Markdown文件
+3. 如需翻译，勾选"使用翻译内容"选项
+4. 点击"转换为TXT"按钮
+5. 完成后点击下载链接获取转换后的TXT文件
 
-```bash
-python process_excel.py
-```
+## 翻译功能
 
-这将从`营造法式.xlsx`文件中提取第一列的数据，并生成`extracted_data.md`文件。每个句子（以句号结尾）将单独占一行，不同单元格的内容之间有一个空行。
+如果您需要使用翻译功能，需要：
 
-### 导出工作表到CSV
-
-```bash
-python export_to_csv.py
-```
-
-这将把`营造法式.xlsx`文件中的每个工作表导出为单独的CSV文件，保存在`csv_files`文件夹中。
-
-## 依赖
-
-- Python 3.6+
-- pandas
-- openpyxl
-
-## 安装依赖
-
-```bash
-pip install pandas openpyxl
-```
+1. 在"设置"标签页中输入密钥
+2. 保存设置后即可在转换时启用翻译功能

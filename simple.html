@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本处理工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            color: #1a5276;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #1a5276;
+            color: white;
+            border-color: #1a5276;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea, input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 150px;
+        }
+        button {
+            background-color: #1a5276;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #154360;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            display: none;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>文本处理工具</h1>
+        <p>古文翻译系统</p>
+    </header>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(event, 'md-to-txt-tab')">转txt</div>
+        <div class="tab" onclick="switchTab(event, 'translate-tab')">翻译</div>
+        <div class="tab" onclick="switchTab(event, 'settings-tab')">设置</div>
+    </div>
+
+    <!-- MD转TXT面板 -->
+    <div id="md-to-txt-tab" class="tab-content active">
+        <div class="form-group">
+            <label for="md-file">选md文件：</label>
+            <input type="file" id="md-file" accept=".md" />
+        </div>
+        <div class="form-group">
+            <label>处理选项：</label>
+            <div>
+                <input type="checkbox" id="enable-translation" />
+                <label for="enable-translation">使用翻译内容</label>
+            </div>
+        </div>
+        <button onclick="convertMdToTxt()">转换为TXT</button>
+        <div id="md-result" class="result">
+            <h3>转换结果</h3>
+            <p id="md-result-message"></p>
+            <a id="txt-download-link" style="display: none;">下载TXT文件</a>
+            <div id="md-preview" style="margin-top: 15px; max-height: 300px; overflow-y: auto; display: none;">
+                <h4>预览：</h4>
+                <pre id="txt-preview" style="white-space: pre-wrap; background: #f8f8f8; padding: 10px; border-radius: 4px;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 翻译面板 -->
+    <div id="translate-tab" class="tab-content">
+        <div class="form-group">
+            <label for="translate-input">输入古文文本：</label>
+            <textarea id="translate-input" placeholder="请在此输入需要翻译的古文..."></textarea>
+        </div>
+        <button onclick="translateText()">测试</button>
+        <div id="translate-result" class="result">
+            <h3>翻译结果</h3>
+            <div id="translation-output"></div>
+        </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <div id="settings-tab" class="tab-content">
+        <div class="form-group">
+            <label for="api-key">输入密钥：</label>
+            <input type="password" id="api-key" placeholder="请输入密钥...">
+        </div>
+        <button onclick="saveSettings()">保存设置</button>
+        <p id="settings-message"></p>
+    </div>
+
+    <div class="status" id="status-area">准备就绪</div>
+
+    <footer>
+        <p>哈哈哈哈哈</p>
+    </footer>
+
+    <script>
+        // 切换标签页
+        function switchTab(event, tabId) {
+            // 隐藏所有标签内容
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // 取消所有标签激活状态
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // 显示当前标签内容并激活当前标签
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // 设置状态信息
+        function setStatus(message) {
+            document.getElementById('status-area').textContent = message;
+        }
+        
+        // MD转TXT功能
+        function convertMdToTxt() {
+            const fileInput = document.getElementById('md-file');
+            if (!fileInput.files.length) {
+                setStatus('请选择Markdown文件');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const enableTranslation = document.getElementById('enable-translation').checked;
+            
+            if (enableTranslation) {
+                const apiKey = localStorage.getItem('gemini-api-key');
+                if (!apiKey) {
+                    setStatus('启用翻译功能需要输入密钥');
+                    return;
+                }
+            }
+            
+            setStatus(`正在处理文件: ${file.name}...`);
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const mdContent = e.target.result;
+                
+                // 转换Markdown为纯文本
+                // 这里使用简单的替换方法处理一些基本的Markdown语法
+                let txtContent = mdContent
+                    // 移除标题前的#号和空格
+                    .replace(/^#{1,6}\s+(.+)$/gm, '$1')
+                    // 移除链接语法，只保留文本
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                    // 移除图片语法
+                    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
+                    // 移除强调符号 * 和 _
+                    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+                    .replace(/(\*|_)(.*?)\1/g, '$2')
+                    // 移除代码块
+                    .replace(/```[\s\S]*?```/g, '')
+                    // 移除行内代码
+                    .replace(/`([^`]+)`/g, '$1')
+                    // 移除水平线
+                    .replace(/^\s*[-*_]{3,}\s*$/gm, '')
+                    // 移除HTML标签
+                    .replace(/<[^>]*>/g, '')
+                    // 处理列表项，移除列表符号
+                    .replace(/^\s*[-*+]\s+(.+)$/gm, '$1')
+                    .replace(/^\s*\d+\.\s+(.+)$/gm, '$1');
+                
+                let finalContent = txtContent;
+                
+                // 如果启用了翻译
+                if (enableTranslation) {
+                    setStatus('正在逐句翻译内容...');
+                    try {
+                        // 清空原始内容，将在翻译过程中重建
+                        finalContent = '';
+                        
+                        // 将文本按行分割
+                        const lines = txtContent.split('\n');
+                        
+                        // 逐行处理
+                        for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i].trim();
+                            if (line) {
+                                setStatus(`正在翻译第 ${i+1}/${lines.length} 行...`);
+                                
+                                const apiKey = localStorage.getItem('gemini-api-key');
+                                const translation = await translateWithGemini(line, apiKey);
+                                
+                                // 添加原文和翻译到最终内容
+                                finalContent += `古文：${line}\n现代文：${translation}\n\n`;
+                                
+                                // 每翻译一行后暂停1-2秒，避免API调用过于频繁
+                                if (i < lines.length - 1) {
+                                    await new Promise(resolve => setTimeout(resolve, 1500));
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('翻译出错:', error);
+                        setStatus(`翻译过程中出错: ${error.message}，仅输出原始文本`);
+                        finalContent = txtContent; // 如果翻译失败，使用原始文本
+                    }
+                }
+                
+                // 预览前500个字符
+                const previewElement = document.getElementById('txt-preview');
+                previewElement.textContent = finalContent.length > 500 ? 
+                    finalContent.substring(0, 500) + '...' : 
+                    finalContent;
+                document.getElementById('md-preview').style.display = 'block';
+                
+                // 创建下载链接
+                const blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById('txt-download-link');
+                downloadLink.href = url;
+                const outputFileName = file.name.replace('.md', '') + (enableTranslation ? '_翻译.txt' : '.txt');
+                downloadLink.download = outputFileName;
+                downloadLink.textContent = `下载 ${outputFileName}`;
+                downloadLink.style.display = 'block';
+                
+                // 显示结果
+                document.getElementById('md-result').style.display = 'block';
+                const message = enableTranslation ? 
+                    `文件 ${file.name} 已成功转换为TXT格式并完成翻译` : 
+                    `文件 ${file.name} 已成功转换为TXT格式`;
+                document.getElementById('md-result-message').textContent = message;
+                
+                setStatus('处理完成');
+            };
+            
+            reader.onerror = function() {
+                setStatus(`读取文件失败: ${reader.error}`);
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            const apiKey = document.getElementById('api-key').value;
+            if (!apiKey) {
+                setStatus('请输入密钥');
+                return;
+            }
+            
+            localStorage.setItem('gemini-api-key', apiKey);
+            setStatus('设置已保存');
+        }
+        
+        // 翻译文本
+        async function translateText() {
+            const apiKey = localStorage.getItem('gemini-api-key');
+            if (!apiKey) {
+                setStatus('请先在"设置"中输入密钥');
+                return;
+            }
+            
+            const text = document.getElementById('translate-input').value.trim();
+            if (!text) {
+                setStatus('请输入要翻译的古文');
+                return;
+            }
+            
+            setStatus('正在翻译...');
+            
+            try {
+                // 将文本分成句子 (按。，；：！？等标点符号分割)
+                const sentences = text.split(/([。，；：！？\.;:!?\n]+)/).filter(item => item.trim());
+                let translatedContent = '';
+                let currentSentence = '';
+                let sentenceCount = 0;
+                
+                // 计算有效句子数量
+                for (let i = 0; i < sentences.length; i += 2) {
+                    if (i < sentences.length && sentences[i].trim()) {
+                        sentenceCount++;
+                    }
+                }
+                
+                // 对每个句子单独翻译
+                for (let i = 0; i < sentences.length; i += 2) {
+                    if (i < sentences.length && sentences[i].trim()) {
+                        // 获取当前句子和它的标点(如果有)
+                        currentSentence = sentences[i].trim();
+                        const punctuation = (i + 1 < sentences.length) ? sentences[i + 1] : '';
+                        
+                        if (currentSentence) {
+                            setStatus(`正在翻译第 ${Math.floor(i/2) + 1}/${sentenceCount} 句...`);
+                            
+                            // 构建完整句子（句子+标点）
+                            const fullSentence = currentSentence + punctuation;
+                            
+                            const apiKey = localStorage.getItem('gemini-api-key');
+                            const translation = await translateWithGemini(fullSentence, apiKey);
+                            
+                            translatedContent += `<div class="translation-pair">
+                                <div><strong>古文：</strong>${fullSentence}</div>
+                                <div><strong>现代文：</strong>${translation}</div>
+                            </div>`;
+                            
+                            // 每翻译一个句子后暂停1-2秒，避免API调用过于频繁
+                            if (i < sentences.length - 2) {
+                                await new Promise(resolve => setTimeout(resolve, 1500));
+                            }
+                        }
+                    }
+                }
+                
+                document.getElementById('translate-result').style.display = 'block';
+                document.getElementById('translation-output').innerHTML = translatedContent;
+                
+                setStatus('翻译完成');
+            } catch (error) {
+                console.error('翻译错误:', error);
+                setStatus('翻译失败: ' + error.message);
+            }
+        }
+        
+        // 使用
+        async function translateWithGemini(text, apiKey) {
+            try {
+                // 构建
+                const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+                const fullUrl = `${url}?key=${apiKey}`;
+                
+                const requestData = {
+                    contents: [{
+                        parts: [{
+                            text: `将以下古文翻译成现代文（不要添加任何额外的说明、注释或其他内容，仅返回翻译后的现代文）:\n\n${text}`
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.1,
+                        topP: 0.95,
+                        topK: 64
+                    }
+                };
+                
+                const response = await fetch(fullUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API响应错误: ${response.status}`);
+                }
+                
+                const responseData = await response.json();
+                
+                // 解析API返回的结果
+                if (responseData.candidates && 
+                    responseData.candidates[0] && 
+                    responseData.candidates[0].content && 
+                    responseData.candidates[0].content.parts && 
+                    responseData.candidates[0].content.parts[0]) {
+                    return responseData.candidates[0].content.parts[0].text.trim();
+                } else {
+                    throw new Error('API返回结果格式不正确');
+                }
+            } catch (error) {
+                console.error('翻译API调用失败:', error);
+                throw error;
+            }
+        }
+        
+        // 加载保存
+        window.addEventListener('DOMContentLoaded', function() {
+            const apiKey = localStorage.getItem('gemini-api-key');
+            if (apiKey) {
+                document.getElementById('api-key').value = apiKey;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+body {
+    font-family: 'Microsoft YaHei', 'SimHei', 'Arial', sans-serif;
+    background-color: #f7f7f7;
+}
+
+header h1 {
+    color: #1a5276;
+}
+
+.card {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e7e7e7;
+    font-weight: bold;
+}
+
+.list-group-item.active {
+    background-color: #1a5276;
+    border-color: #1a5276;
+}
+
+.btn-primary {
+    background-color: #1a5276;
+    border-color: #1a5276;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #154360;
+    border-color: #154360;
+}
+
+.card-header.bg-primary {
+    background-color: #1a5276 !important;
+}
+
+.card-header.bg-success {
+    background-color: #1e8449 !important;
+}
+
+#status-area {
+    min-height: 50px;
+    line-height: 1.5;
+}
+
+.progress {
+    height: 20px;
+}
+
+.progress-bar {
+    background-color: #1a5276;
+}
+
+footer {
+    color: #666;
+}
+
+.form-control:focus {
+    border-color: #1a5276;
+    box-shadow: 0 0 0 0.25rem rgba(26, 82, 118, 0.25);
+}
+
+textarea {
+    resize: vertical;
+}
